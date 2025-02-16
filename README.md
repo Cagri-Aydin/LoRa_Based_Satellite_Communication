@@ -37,8 +37,8 @@ The project is composed of two primary components:
 
 1. **Satellite (Bridge Node):**  
    - Acts as the intermediary between remote sensor nodes and the central hub.
-   - Receives sensor data via LoRa and forwards it to the central hub via a secondary communication channel (e.g., WiFi/MQTT).
-   - Receives control commands from the central hub to adjust its movement.
+   - Receives sensor data via LoRa and forwards it to the central hub.
+   - Receives control commands from the central hub to adjust its movement. (LoRA)
 
 2. **Central Hub (Ground Station):**  
    - Collects and logs data received from the satellite.
