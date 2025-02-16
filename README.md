@@ -18,7 +18,6 @@ This project simulates an end-to-end system that consists of two main components
   - [Software Setup](#software-setup)
 - [Usage Scenario](#usage-scenario)
 - [Contributing](#contributing)
-- [License](#license)
 - [Additional Notes](#additional-notes)
 
 ---
