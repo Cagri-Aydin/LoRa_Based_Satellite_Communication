@@ -15,7 +15,6 @@
 #include "SatelliteInboundSignal.h"
 
 String IamInboundText = "S" + String(myBoard.getId()) + "-"+"GD"+"Inbound";
-boolean recived = false;
 
 void setup() {
   Serial.begin(115200);
@@ -26,10 +25,10 @@ void setup() {
 
 void loop() {
   sendSignal(IamInboundText);
-  recived = listenLoRaPackets(); // **Gelen LoRa paketlerini dinle**
-  if (recived == true)
+  String recivedMessage = listenLoRaPackets(); 
+  if (!recivedMessage.equals(""))
   {
-    
+    analyzeMessage(recivedMessage);
   }
   
 }
