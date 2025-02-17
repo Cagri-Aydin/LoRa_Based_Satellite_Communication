@@ -10,9 +10,11 @@
 #include "LoRaModuleConfig.h"
 #include "Board.h"
 
+String receivedMessage = "";
+
 // **Board nesnesi tanımlanıyor**
 Board myBoard(
-    "MyBoard",
+    "Satellite001",
     1,
     oledScreenConfig(21, 22, -1, 128, 64, "0x3C"),
     LoRaModuleConfig(5, 19, 27, 18, 14, 26, "868E6") // LoRa için pinler ve bant
@@ -26,13 +28,13 @@ Adafruit_SSD1306 display(
     myBoard.getOledConfig().getRstPin()
 );
 
-// **OLED Başlatma Fonksiyonu**
+// **OLED Başlatma Fonksiyonu** Sadece
 void initializeOLED() {
     Wire.begin(myBoard.getOledConfig().getSdaPin(), myBoard.getOledConfig().getSclPin());
 
     uint8_t i2cAddress = (uint8_t) strtol(myBoard.getOledConfig().getAddress().c_str(), NULL, 16);
     if (!display.begin(SSD1306_SWITCHCAPVCC, i2cAddress)) {
-        Serial.println("OLED başlatılamadı!");
+        Serial.println("OLED started");
         for (;;);
     }
     
@@ -64,25 +66,44 @@ void initializeLoRa() {
 }
 
 // **LoRa Paketlerini Dinleme Fonksiyonu**
-void listenLoRaPackets() {
-    int packetSize = LoRa.parsePacket(); // Gelen paket var mı kontrol et
-    if (packetSize) {
-        Serial.print("Yeni LoRa Paketi Alındı: ");
-        String received = "";
-        while (LoRa.available()) {
-            received += (char)LoRa.read();
+bool listenLoRaPackets() {
+    unsigned long startTime = millis(); // Başlangıç zamanını kaydet
+    bool packetReceived = false; // Paket alınıp alınmadığını kontrol eden değişken
+
+    while (millis() - startTime < 30000) { // 30 saniye boyunca kontrol et
+        int packetSize = LoRa.parsePacket(); // Gelen paket var mı kontrol et
+
+        if (packetSize) {
+            Serial.print("Yeni LoRa Paketi Alındı: ");
+            String receivedMessage = "";
+
+            while (LoRa.available()) {
+                receivedMessage += (char)LoRa.read();
+            }
+
+            Serial.println(receivedMessage);
+
+            // OLED ekrana yaz
+            display.clearDisplay();
+            display.setCursor(0, 0);
+            display.println("LoRa Mesajı:");
+            display.println(receivedMessage);
+            display.display();
+
+            // Yeni paket alındı, süreyi sıfırla
+            packetReceived = true;
+            startTime = millis();
         }
-
-        Serial.println(received);
-
-        // OLED ekrana yaz
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.println("LoRa Mesajı:");
-        display.println(received);
-        display.display();
     }
+
+    if (!packetReceived) {
+        Serial.println("30 saniye boyunca LoRa paketi alınmadı, yeniden ping atılıyor.");
+        LoRa.sleep(); // LoRa modülünü uyku moduna al
+    }
+
+    return packetReceived; // Eğer paket alındıysa true, alınmadıysa false döner
 }
+
 
 // **LoRa Mesaj Gönderme Fonksiyonu**
 void sendLoRaMessage(String message) {
