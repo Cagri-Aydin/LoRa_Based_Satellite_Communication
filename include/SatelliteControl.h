@@ -10,8 +10,11 @@
 #include "LoRaModuleConfig.h"
 #include "Board.h"
 #include <vector>
+#include <SD.h>
+#include <SPI.h>
 
 
+#define SD_CS_PIN 10
 // **Board nesnesi tanımlanıyor**
 Board myBoard(
     "Satellite001",
@@ -113,18 +116,105 @@ std::vector<String> splitString(String data, char delimiter) {
     return result;
 }
 
-void analyzeMessage(String message){
-    std::vector<String> messageParts = splitString(message, '-');
-    
-    String messageReciver = messageParts.at(1);
-    
-    
-    if(thisDeviceReciverId.equals(messageReciver)){
-        //Yarın buradan devam
-        
+String requestDataFromDevice(String msg) {
+    sendLoRaMessage(msg); // Send the initial request
+
+    int maxRetries = 6; // Run for 60 seconds (6 x 10 seconds)
+
+    for (int attempt = 0; attempt < maxRetries; attempt++) {
+        unsigned long startTime = millis(); // Get the start time
+        int timeout = 10000; // 10-second timeout
+        String receivedData = "";
+
+        while (millis() - startTime < timeout) {
+            if (LoRa.available()) { // Check if data is available
+                receivedData = LoRa.readString(); // Read the received message
+                Serial.print("Received: ");
+                Serial.println(receivedData);
+
+                // Split the received message by "-"
+                std::vector<String> messageParts = splitString(receivedData, '-');
+
+                // Ensure the vector has at least 2 elements
+                if (messageParts.size() > 1) {
+                    String messageReciver = messageParts.at(1);
+
+                    // If the message is intended for this device, return it
+                    if (thisDeviceReciverId.equals(messageReciver)) {
+                        return receivedData;
+                    } else {
+                        Serial.println("Message not for this device, continuing to listen...");
+                    }
+                }
+            }
+        }
+
+        // If no message is received within 10 seconds, resend the request
+        Serial.println("Timeout! Resending request...");
+        sendLoRaMessage(msg);
     }
 
+    return ""; // Return an empty string if no valid message is received within 60 seconds
 }
+
+
+
+
+
+bool analyzeMessage(String message) {
+    std::vector<String> messageParts = splitString(message, '-');
+
+    if (messageParts.size() != 3) {
+        Serial.print("Received corrupted data!");
+        sendLoRaMessage(thisDeviceReciverId + "-" + messageParts.at(0) + "-" + "CDataCorrupted");
+        return false;
+    }
+
+    String messageReciver = messageParts.at(1);
+
+    if (thisDeviceReciverId.equals(messageReciver)) {
+        Serial.print("Message in process..");
+
+        String senderDevice = messageParts.at(0);
+        String dataRecived = messageParts.at(2);
+
+        if (dataRecived.length() > 1 && isDigit(dataRecived.charAt(1))) { // Sayısal veri olduğundan emin ol
+            
+            int memorySize = dataRecived.substring(1).toInt(); // İlk karakteri at, kalanını sayıya çevir
+            
+            if (memorySize > 0) { // Check if size is valid
+                // Request data from the device
+                String data = requestDataFromDevice(thisDeviceReciverId + "-" + messageParts.at(0) + "-" + "DR");
+        
+                if (!data.equals("")) { // If data is received, save it to file
+                    saveToFile(data);
+                } else {
+                    Serial.println("No data received");
+                }
+                //Buffer'a göre iletimi yarım kalan dataların daha sonradan aktarımı sağlanacak...
+            } else {
+                Serial.print("Invalid memory size in received data");
+            }
+        } else {
+            Serial.print("Invalid data format");
+        }
+    }
+    return true;
+}
+
+void saveToFile(String data) {
+    File file = SD.open("data.txt", FILE_WRITE); // Open file in append mode
+
+    if (file) {
+        file.println(data); // Write the data to the file
+        file.close(); // Close the file to save changes
+        Serial.println("Data saved to data.txt");
+    } else {
+        Serial.println("Error opening data.txt!");
+    }
+}
+
+
 
 // **LoRa Mesaj Gönderme Fonksiyonu**
 void sendLoRaMessage(String message) {
