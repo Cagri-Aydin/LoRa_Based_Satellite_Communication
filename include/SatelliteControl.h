@@ -12,6 +12,8 @@
 #include <vector>
 #include <SD.h>
 #include <SPI.h>
+#include "MetaDataProcess.h"
+#include "DataProcess.h"
 
 
 #define SD_CS_PIN 10
@@ -136,7 +138,7 @@ String requestDataFromDevice(String msg) {
                 std::vector<String> messageParts = splitString(receivedData, '-');
 
                 // Ensure the vector has at least 2 elements
-                if (messageParts.size() > 1) {
+                if (messageParts.size() == 3) {
                     String messageReciver = messageParts.at(1);
 
                     // If the message is intended for this device, return it
@@ -165,7 +167,7 @@ bool analyzeMessage(String message) {
     std::vector<String> messageParts = splitString(message, '-');
 
     if (messageParts.size() != 3) {
-        Serial.print("Received corrupted data!");
+        Serial.println("Received corrupted data!");
         sendLoRaMessage(thisDeviceReciverId + "-" + messageParts.at(0) + "-" + "CDataCorrupted");
         return false;
     }
@@ -173,34 +175,33 @@ bool analyzeMessage(String message) {
     String messageReciver = messageParts.at(1);
 
     if (thisDeviceReciverId.equals(messageReciver)) {
-        Serial.print("Message in process..");
+        Serial.println("Message in process..");
 
         String senderDevice = messageParts.at(0);
         String dataRecived = messageParts.at(2);
 
-        if (dataRecived.length() > 1 && isDigit(dataRecived.charAt(1))) { // Sayısal veri olduğundan emin ol
+        if (dataRecived.length() > 1) { 
+            char commandType = dataRecived.charAt(0);
+            String valuePart = dataRecived.substring(1);
             
-            int memorySize = dataRecived.substring(1).toInt(); // İlk karakteri at, kalanını sayıya çevir
-            
-            if (memorySize > 0) { // Check if size is valid
-                // Request data from the device
-                String data = requestDataFromDevice(thisDeviceReciverId + "-" + messageParts.at(0) + "-" + "DR");
-        
-                if (!data.equals("")) { // If data is received, save it to file
-                    saveToFile(data);
-                } else {
-                    Serial.println("No data received");
-                }
-                //Buffer'a göre iletimi yarım kalan dataların daha sonradan aktarımı sağlanacak...
+            //If commend type is Meta-Data (M)
+            if (commandType == 'M' && isDigit(valuePart.charAt(0))) { 
+                processMemoryRequest(senderDevice, thisDeviceReciverId, valuePart);
+
+            }//If commend thpe is Command -comes from ground stations- (C) 
+            else if (commandType == 'C' && isDigit(valuePart.charAt(0))) { 
+                //Yarın buradan devam et gelen uydu komutlarını parse et
+
             } else {
-                Serial.print("Invalid memory size in received data");
+                Serial.println("Invalid data format");
             }
         } else {
-            Serial.print("Invalid data format");
+            Serial.println("Invalid data length");
         }
     }
     return true;
 }
+
 
 void saveToFile(String data) {
     File file = SD.open("data.txt", FILE_WRITE); // Open file in append mode
