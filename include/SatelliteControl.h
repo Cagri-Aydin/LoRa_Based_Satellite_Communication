@@ -14,6 +14,7 @@
 #include <SPI.h>
 #include "MetaDataProcess.h"
 #include "DataProcess.h"
+#include "ClassifyMessageForD.h"
 
 
 #define SD_CS_PIN 10
@@ -171,7 +172,7 @@ void filterBySender (String sender, String message){
 
     }else if(senderType == 'D') //D -> Device, means an IoT device has a data to be collected
     {
-        
+        ClassifyMessageForD(sender,thisDeviceReciverId,message);
     }
 
 }
@@ -188,30 +189,12 @@ bool analyzeMessage(String message) {
 
     String messageReciver = messageParts.at(1);
 
-    if (thisDeviceReciverId.equals(messageReciver)) {
+    if (thisDeviceReciverId.equals(messageReciver) || messageReciver.equals("S") || messageReciver.equals("GSD")) //GSD -> Ground,Satellite and Device means all devices connected to this network
+    {
         Serial.println("Message in process..");
-
         String senderDevice = messageParts.at(0);
         String dataRecived = messageParts.at(2);
-
-        if (dataRecived.length() > 1) { 
-            char commandType = dataRecived.charAt(0);
-            String valuePart = dataRecived.substring(1);
-            
-            //If commend type is Meta-Data (M)
-            if (commandType == 'M' && isDigit(valuePart.charAt(0))) { 
-                processMemoryRequest(senderDevice, thisDeviceReciverId, valuePart);
-
-            }//If commend thpe is Command -comes from ground stations- (C) 
-            else if (commandType == 'C' && isDigit(valuePart.charAt(0))) { 
-                //Yarın buradan devam et gelen uydu komutlarını parse et
-
-            } else {
-                Serial.println("Invalid data format");
-            }
-        } else {
-            Serial.println("Invalid data length");
-        }
+        filterBySender(senderDevice,dataRecived);
     }
     return true;
 }

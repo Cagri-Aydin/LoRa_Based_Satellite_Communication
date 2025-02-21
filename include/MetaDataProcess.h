@@ -5,7 +5,7 @@
 #include <SatelliteControl.h>
 
 
-void processMemoryRequest(String senderDevice, String thisDeviceReciverId, String valuePart) {
+void MetaDataProcess(String senderDevice, String thisDeviceReciverId, String valuePart) {
     int memorySize = valuePart.toInt();
 
     if (memorySize > 0) {
