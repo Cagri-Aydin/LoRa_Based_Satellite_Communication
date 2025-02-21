@@ -160,7 +160,21 @@ String requestDataFromDevice(String msg) {
 }
 
 
+void filterBySender (String sender, String message){
+    char senderType = sender.charAt(0);
+    
+    if (senderType == 'G') // G -> Ground, means a ground station send a spesific request or wants stored data
+    {
+        
+    }else if(senderType == 'S') //S -> Satellite, means other LEO satilletes wants to share a data
+    {
 
+    }else if(senderType == 'D') //D -> Device, means an IoT device has a data to be collected
+    {
+        
+    }
+
+}
 
 
 bool analyzeMessage(String message) {
