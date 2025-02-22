@@ -3,10 +3,15 @@
 
 #include <Arduino.h>
 #include <SatelliteControl.h>
+#include "DoubleLinkedList.h"
+
 
 
 void MetaDataProcess(String senderDevice, String thisDeviceReciverId, String valuePart) {
     int memorySize = valuePart.toInt();
+    
+    datasToBeComplete.insertAtTail(memorySize,senderDevice,"");
+
 
     if (memorySize > 0) {
         Serial.print("Processing memory request with size: ");
@@ -16,7 +21,13 @@ void MetaDataProcess(String senderDevice, String thisDeviceReciverId, String val
         String data = requestDataFromDevice(thisDeviceReciverId + "-" + senderDevice + "-" + "DR");
 
         if (!data.equals("")) {
-            saveToFile(data); 
+            datasToBeComplete.updateNodeDataBySender(senderDevice,data);
+            if (data.length() - datasToBeComplete.getDataLengthBySender(senderDevice) == 0) //All data recived in this case
+            {
+                datasReadyToSend.insertAtTail(datasToBeComplete.findNodeBySender(senderDevice)->dataLength, datasToBeComplete.findNodeBySender(senderDevice)->senderDevice, datasToBeComplete.findNodeBySender(senderDevice)->data);
+                datasToBeComplete.deleteNodeBySender(senderDevice);
+            }
+            
         } else {
             Serial.println("No data received");
         }

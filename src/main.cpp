@@ -13,6 +13,10 @@
 #include "Board.h"
 #include "SatelliteControl.h"
 #include "SatelliteInboundSignal.h"
+#include "DoubleLinkedList.h"
+
+DoublyLinkedList datasToBeComplete;
+DoublyLinkedList datasReadyToSend;
 
 String IamInboundText = "S" + String(myBoard.getId()) + "-"+"GD"+"Inbound";
 bool messageProcess = false;
