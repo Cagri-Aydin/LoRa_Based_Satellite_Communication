@@ -3,15 +3,11 @@
 
 #include <Arduino.h>
 #include <SatelliteControl.h>
-#include "DoubleLinkedList.h"
-
-
 
 void MetaDataProcess(String senderDevice, String thisDeviceReciverId, String valuePart) {
     int memorySize = valuePart.toInt();
     
     datasToBeComplete.insertAtTail(memorySize,senderDevice,"");
-
 
     if (memorySize > 0) {
         Serial.print("Processing memory request with size: ");

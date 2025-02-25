@@ -14,11 +14,12 @@
 #include "SatelliteControl.h"
 #include "SatelliteInboundSignal.h"
 #include "DoubleLinkedList.h"
+#include "ClassifyMessageForG.h"
 
 DoublyLinkedList datasToBeComplete;
 DoublyLinkedList datasReadyToSend;
 
-String IamInboundText = "S" + String(myBoard.getId()) + "-"+"GD"+"Inbound";
+String IamInboundText = "S" + String(myBoard.getId()) + "-"+"GD"+"-Inbound";
 bool messageProcess = false;
 void setup() {
   Serial.begin(115200);

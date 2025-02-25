@@ -26,8 +26,12 @@ public:
     void insertAtHead(int dataLength, const String& senderDevice, const String& data);
     void insertAtTail(int dataLength, const String& senderDevice, const String& data);
     void deleteNode(Node* delNode);
-    void deleteNodeBySender(const String& senderDevice);  // New function
-    Node* findNodeBySender(const String& senderDevice);   // New function
+    void deleteFirstNode();
+    void deleteLastNode();  // New function
+    void deleteNodeBySender(const String& senderDevice);
+    Node* findNodeBySender(const String& senderDevice);
+    Node* getFirstNode();
+    Node* getLastNode();
     void updateNodeDataBySender(const String& senderDevice, const String& newData);
     int getDataLengthBySender(const String& senderDevice);
     void printList() const;
@@ -74,6 +78,42 @@ void DoublyLinkedList::insertAtTail(int dataLength, const String& senderDevice, 
     newNode->prev = temp;
 }
 
+// === Get Last Node ===
+Node* DoublyLinkedList::getLastNode() {
+    if (!head) {
+        return nullptr;  // Return nullptr if list is empty
+    }
+    Node* temp = head;
+    while (temp->next) {
+        temp = temp->next;
+    }
+    return temp;  // Return the last node
+}
+
+// === Delete the Last Node ===
+void DoublyLinkedList::deleteLastNode() {
+    if (!head) {  // Check if list is empty
+        Serial.println("List is empty! No node to delete.");
+        return;
+    }
+
+    if (!head->next) {  // If only one node exists
+        delete head;
+        head = nullptr;
+        Serial.println("Last node deleted successfully!");
+        return;
+    }
+
+    Node* temp = head;
+    while (temp->next) {
+        temp = temp->next;
+    }
+
+    temp->prev->next = nullptr;  // Remove last node reference
+    delete temp;  // Free memory
+    Serial.println("Last node deleted successfully!");
+}
+
 // === Delete a Node by senderDevice ===
 void DoublyLinkedList::deleteNodeBySender(const String& senderDevice) {
     Node* temp = head;
@@ -101,6 +141,11 @@ Node* DoublyLinkedList::findNodeBySender(const String& senderDevice) {
         temp = temp->next;
     }
     return nullptr;  // Return nullptr if not found
+}
+
+// === Get First Node ===
+Node* DoublyLinkedList::getFirstNode() {
+    return head;  // Return the first node or nullptr if list is empty
 }
 
 // === Update Node Data by senderDevice ===

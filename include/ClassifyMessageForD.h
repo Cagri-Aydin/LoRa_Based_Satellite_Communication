@@ -12,11 +12,7 @@ void ClassifyMessageForD(String sender, String thisDeviceReciverId, String messa
     {
         MetaDataProcess(sender,thisDeviceReciverId,valuePart);
     }
-    else if(commandType == 'D')
-    {
-        
-
-    }
+    
 
 
 }

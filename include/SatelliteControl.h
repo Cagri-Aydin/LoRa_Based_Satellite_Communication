@@ -15,6 +15,7 @@
 #include "MetaDataProcess.h"
 #include "DataProcess.h"
 #include "ClassifyMessageForD.h"
+#include "ClassifyMessageForG.h"
 
 
 #define SD_CS_PIN 10
@@ -166,7 +167,7 @@ void filterBySender (String sender, String message){
     
     if (senderType == 'G') // G -> Ground, means a ground station send a spesific request or wants stored data
     {
-        
+        ClassifyMessageForG(sender,thisDeviceReciverId,message);
     }else if(senderType == 'S') //S -> Satellite, means other LEO satilletes wants to share a data
     {
 
@@ -195,7 +196,9 @@ bool analyzeMessage(String message) {
         String senderDevice = messageParts.at(0);
         String dataRecived = messageParts.at(2);
         filterBySender(senderDevice,dataRecived);
+
     }
+    
     return true;
 }
 
