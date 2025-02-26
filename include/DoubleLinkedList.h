@@ -93,7 +93,7 @@ Node* DoublyLinkedList::getLastNode() {
 // === Delete the Last Node ===
 void DoublyLinkedList::deleteLastNode() {
     if (!head) {  // Check if list is empty
-        Serial.println("List is empty! No node to delete.");
+        Serial.println("No Node");
         return;
     }
 
@@ -123,12 +123,12 @@ void DoublyLinkedList::deleteNodeBySender(const String& senderDevice) {
             if (temp->next) temp->next->prev = temp->prev;
             if (temp == head) head = temp->next;
             delete temp;
-            Serial.println("✅ Node deleted successfully!");
+            Serial.println("Node deleted successfully!");
             return;
         }
         temp = temp->next;
     }
-    Serial.println("⚠️ Node with given senderDevice not found!");
+    Serial.println("Node with given senderDevice not found!");
 }
 
 // === Find Node by senderDevice ===
@@ -154,12 +154,12 @@ void DoublyLinkedList::updateNodeDataBySender(const String& senderDevice, const 
     while (temp) {
         if (temp->senderDevice == senderDevice) {
             temp->data = newData;
-            Serial.println("✅ Node updated successfully!");
+            Serial.println("Node updated successfully!");
             return;
         }
         temp = temp->next;
     }
-    Serial.println("⚠️ Node with given senderDevice not found!");
+    Serial.println("Node with given senderDevice not found!");
 }
 
 // === Get Data Length by senderDevice ===

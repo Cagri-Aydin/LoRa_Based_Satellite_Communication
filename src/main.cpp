@@ -18,7 +18,7 @@
 
 DoublyLinkedList datasToBeComplete;
 DoublyLinkedList datasReadyToSend;
-
+DoublyLinkedList datasSendend;
 String IamInboundText = "S" + String(myBoard.getId()) + "-"+"GD"+"-Inbound";
 bool messageProcess = false;
 void setup() {

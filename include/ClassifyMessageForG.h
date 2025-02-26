@@ -16,12 +16,16 @@ void ClassifyMessageForG(String sender, String thisDeviceReciverId, String messa
             try
             {
                 //Sending Data to ground station
-                String data = (datasReadyToSend.getFirstNode()->senderDevice + "," + datasReadyToSend.getFirstNode()->data);
+                String data = dataValue(datasReadyToSend,'F');
                 sendLoRaMessage(thisDeviceReciverId+"-"+sender+"-"+data);
                 
                 //Moving data to Sended datas
-                datasSendend.insertAtTail(datasReadyToSend.getFirstNode()->dataLength, datasReadyToSend.getFirstNode()->senderDevice, datasReadyToSend.getFirstNode()->data);
-                datasReadyToSend.deleteFirstNode();
+                if (!data.equals("No-Data"))
+                {
+                    datasSendend.insertAtTail(datasReadyToSend.getFirstNode()->dataLength, datasReadyToSend.getFirstNode()->senderDevice, datasReadyToSend.getFirstNode()->data);
+                    datasReadyToSend.deleteFirstNode();
+                }
+                
             }
             catch(const std::exception& e)
             {
@@ -33,12 +37,15 @@ void ClassifyMessageForG(String sender, String thisDeviceReciverId, String messa
             try
             {
                 //Sending Data to ground station
-                String data = (datasReadyToSend.getLastNode()->senderDevice + "," + datasReadyToSend.getLastNode()->data);
+                String data = dataValue(datasReadyToSend,'L');
                 sendLoRaMessage(thisDeviceReciverId+"-"+sender+"-"+data);
             
                 //Moving data to Sended datas
-                datasSendend.insertAtTail(datasReadyToSend.getLastNode()->dataLength, datasReadyToSend.getLastNode()->senderDevice, datasReadyToSend.getLastNode()->data);
-                datasReadyToSend.deleteLastNode();
+                if (!data.equals("No-Data"))
+                {
+                    datasSendend.insertAtTail(datasReadyToSend.getLastNode()->dataLength, datasReadyToSend.getLastNode()->senderDevice, datasReadyToSend.getLastNode()->data);
+                    datasReadyToSend.deleteLastNode();
+                }   
             }
             catch(const std::exception& e)
             {
@@ -55,6 +62,36 @@ void ClassifyMessageForG(String sender, String thisDeviceReciverId, String messa
     }
     
 
+}
+
+String dataValue(DoublyLinkedList DLL, char order){
+    String data;
+    if (order == 'F') //First node
+    {
+        String sender = DLL.getFirstNode()-> senderDevice;
+        String data = DLL.getFirstNode()->data;
+
+        if (data == nullptr || sender == nullptr)
+        {
+            data = "No-Data";
+        }else{
+            data = sender + "," + data;
+        }
+        return data;
+
+    }else if (order == 'L') //Last Node
+    {
+        String sender = DLL.getLastNode()-> senderDevice;
+        String data = DLL.getLastNode()->data;
+
+        if (data == nullptr || sender == nullptr)
+        {
+            data = "No-Data";
+        }else{
+            data = sender + "," + data;
+        }
+        return data;
+    }
 }
 
 #endif
