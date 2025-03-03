@@ -57,12 +57,36 @@ void ClassifyMessageForG(String sender, String thisDeviceReciverId, String messa
         }else if (valuePart.charAt(0) == 'D')
         {
             //spesifik cihazın datasını getirme yoksa istek gönderme
+            try
+            {
+                String deviceID = valuePart.substring(1);
+                String data = datasReadyToSend.findNodeBySender(deviceID)->data;
+                String confirmationString = "";
+                if (data != nullptr)
+                {
+                    confirmationString = requestDataConfirmation(thisDeviceReciverId+"-"+sender+"-"+data);
+                    if (confirmationString.equals("Data Recived"))
+                    {
+                        datasSendend.insertAtTail(datasReadyToSend.findNodeBySender(deviceID)->dataLength, datasReadyToSend.findNodeBySender(deviceID)->senderDevice,datasReadyToSend.findNodeBySender(deviceID)->data);
+                        datasReadyToSend.deleteNodeBySender(datasReadyToSend.findNodeBySender(deviceID)->senderDevice);
+                    }
+                    
+                }else{
+                    confirmationString = requestDataConfirmation(thisDeviceReciverId+"-"+sender+"-"+"No Device Data");
+                    if (confirmationString.equals("Ask Sats"))//asking other satillites for the same data
+                    {
+                        sendLoRaMessage(thisDeviceReciverId+"S"+valuePart);
+                    }
+                    
+                }
+                
+            }
+            catch(const std::exception& e)
+            {
+                sendLoRaMessage(thisDeviceReciverId+"-"+sender+"-"+"ND");
+            }
         }
-        
-        
     }
-    
-
 }
 
 String dataValue(DoublyLinkedList DLL, char order){
