@@ -5,6 +5,13 @@
 This project simulates an end-to-end system that consists of two main components: a **satellite (bridge node)** and a **central hub (ground station)**. In this simulation, environmental data collected by sensor nodes (whose code is not part of this project) is transmitted via LoRa to the satellite. The satellite then aggregates and forwards the data to the central hub, where the data is logged and analyzed. Additionally, the central hub is capable of sending commands to control the satellite’s movements (for example rotating the satellite, opening and closing the solar panels).
 
 ---
+#Lastly Added
+-> Satilletes now can transmit data for ground stations and IoT devices.
+-> Satilletes can send specific data for station's request if it doesn't exist ask for other satilletes inbound.
+
+#Upcoming Updates
+-> Resolving Doppler Effect for long distance communications.
+-> More optimization to sleep schedules for satellites.
 
 ## Contents
 
