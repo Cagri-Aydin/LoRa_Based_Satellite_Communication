@@ -10,6 +10,7 @@ This project simulates an end-to-end system that consists of two main components
 -> Satilletes can send specific data for station's request if it doesn't exist ask for other satilletes inbound.
 
 #Upcoming Updates
+-> Adding Low-Density Parity-Check for error correction.
 -> Resolving Doppler Effect for long distance communications.
 -> More optimization to sleep schedules for satellites.
 
